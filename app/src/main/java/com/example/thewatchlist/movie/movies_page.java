@@ -8,8 +8,10 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.thewatchlist.CustomAdapter;
 import com.example.thewatchlist.R;
 import com.example.thewatchlist.database.DatabaseHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,6 +25,7 @@ public class movies_page extends AppCompatActivity {
     DatabaseHelper myDB;
     ArrayList<String> movie_id, movie_name, movie_year, movie_status;
 
+    CustomAdapter customAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +48,10 @@ public class movies_page extends AppCompatActivity {
        movie_status = new ArrayList<>();
 
        displayMovies();
+
+       customAdapter = new CustomAdapter(movies_page.this, movie_id, movie_name, movie_year, movie_status );
+       recyclerView.setAdapter(customAdapter);
+       recyclerView.setLayoutManager(new LinearLayoutManager((movies_page.this)));
     }
 
     void displayMovies(){
@@ -57,7 +64,6 @@ public class movies_page extends AppCompatActivity {
                 movie_name.add(cursor.getString(1));
                 movie_year.add(cursor.getString(2));
                 movie_status.add(cursor.getString(3));
-
             }
         }
     }
