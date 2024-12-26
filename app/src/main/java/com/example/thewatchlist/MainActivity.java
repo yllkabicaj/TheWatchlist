@@ -3,6 +3,8 @@ package com.example.thewatchlist;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,12 +22,17 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Handle system insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Animation scale_fade_in = AnimationUtils.loadAnimation(this, R.anim.scale_fade_in);
+
+        // Apply fade-in animation to ImageView and Button
+        findViewById(R.id.imageView).startAnimation(scale_fade_in);
+        findViewById(R.id.getStartedButton).startAnimation(scale_fade_in);
 
         // Set up the button to navigate to MoviesPage
         findViewById(R.id.getStartedButton).setOnClickListener(new View.OnClickListener() {

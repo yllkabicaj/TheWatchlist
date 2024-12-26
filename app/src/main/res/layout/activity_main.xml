@@ -27,11 +27,13 @@
         android:outlineSpotShadowColor="@color/black"
         android:text="Get Started"
         android:textColor="@color/white"
-        android:textSize="50px"
+        android:textSize="35sp"
+        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.56"
+        android:stateListAnimator="@anim/scale_fade_in"
         tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>
