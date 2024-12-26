@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,17 +50,33 @@ public class movies_page extends AppCompatActivity {
 
        displayMovies();
 
-       customAdapter = new CustomAdapter(movies_page.this, movie_id, movie_name, movie_year, movie_status );
+       customAdapter = new CustomAdapter(movies_page.this,this, movie_id, movie_name, movie_year, movie_status );
        recyclerView.setAdapter(customAdapter);
        recyclerView.setLayoutManager(new LinearLayoutManager((movies_page.this)));
     }
 
-    void displayMovies(){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            recreate();
+        }
+    }
+
+    void displayMovies() {
+        // Clear existing data
+        movie_id.clear();
+        movie_name.clear();
+        movie_year.clear();
+        movie_status.clear();
+
+        // Load new data from the database
         Cursor cursor = myDB.getAllMovies();
-        if(cursor.getCount() == 0){
+        if (cursor.getCount() == 0) {
             Toast.makeText(this, "No movies to display.", Toast.LENGTH_SHORT).show();
-        }else {
-            while (cursor.moveToNext()){
+        } else {
+            while (cursor.moveToNext()) {
                 movie_id.add(cursor.getString(0));
                 movie_name.add(cursor.getString(1));
                 movie_year.add(cursor.getString(2));
@@ -67,4 +84,5 @@ public class movies_page extends AppCompatActivity {
             }
         }
     }
+
 }
