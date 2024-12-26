@@ -1,5 +1,6 @@
 package com.example.thewatchlist.movie;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.thewatchlist.R;
@@ -18,7 +20,7 @@ import com.example.thewatchlist.enums.Status;
 public class UpdateMovie extends AppCompatActivity {
     EditText title_input, year_input;
     Spinner status_input;
-    Button edit_button;
+    Button edit_button, delete_button;
     String id, title, year, status;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class UpdateMovie extends AppCompatActivity {
         year_input = findViewById(R.id.edit_text_year1);
         status_input = findViewById(R.id.status_spinner1);
         edit_button = findViewById(R.id.edit_movie_button);
+        delete_button = findViewById(R.id.delete_movie_button);
         populateSpinner();
         getIntentAndSetMovie();
 
@@ -50,6 +53,13 @@ public class UpdateMovie extends AppCompatActivity {
                 Intent intent = new Intent(UpdateMovie.this, movies_page.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                confirmDialog();
             }
         });
     }
@@ -82,5 +92,30 @@ public class UpdateMovie extends AppCompatActivity {
                 break;
             }
         }
+    }
+
+    void confirmDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete "+title+" ?");
+        builder.setMessage("Are you sure you want to delete "+title+" ?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseHelper myDB = new DatabaseHelper(UpdateMovie.this);
+                myDB.deleteMovie(id);
+
+                // Navigate back to movies_page
+                Intent intent = new Intent(UpdateMovie.this, movies_page.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // User canceled the deletion
+            }
+        });
+        builder.create().show();
     }
 }

@@ -87,4 +87,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return cursor;
     }
+
+    public void deleteMovie(String row_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        long result = db.delete(TABLE_NAME, "_id=?", new String[]{row_id});
+        if (result == -1) {
+            Toast.makeText(context, "Failed to delete movie", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Movie deleted successfully", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
