@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thewatchlist.CustomAdapter;
 import com.example.thewatchlist.R;
+import com.example.thewatchlist.auth.UserSessionManager;
 import com.example.thewatchlist.database.DatabaseHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -27,52 +28,56 @@ public class movies_page extends AppCompatActivity {
     ArrayList<String> movie_id, movie_name, movie_year, movie_status;
 
     CustomAdapter customAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_movies_page);
-       recyclerView = findViewById(R.id.recycler_view);
-       add_button = findViewById(R.id.add_button);
-       add_button.setOnClickListener(new View.OnClickListener(){
 
-           @Override
-           public void onClick(View v) {
-               Intent intent = new Intent(movies_page.this, AddMovie.class);
-               startActivity(intent);
-           }
-       });
-       myDB = new DatabaseHelper(movies_page.this);
-       movie_id = new ArrayList<>();
-       movie_name = new ArrayList<>();
-       movie_year = new ArrayList<>();
-       movie_status = new ArrayList<>();
+        recyclerView = findViewById(R.id.recycler_view);
+        add_button = findViewById(R.id.add_button);
 
-       displayMovies();
+        add_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(movies_page.this, AddMovie.class);
+                startActivity(intent);
+            }
+        });
 
-       customAdapter = new CustomAdapter(movies_page.this,this, movie_id, movie_name, movie_year, movie_status );
-       recyclerView.setAdapter(customAdapter);
-       recyclerView.setLayoutManager(new LinearLayoutManager((movies_page.this)));
+        myDB = new DatabaseHelper(movies_page.this);
+
+        movie_id = new ArrayList<>();
+        movie_name = new ArrayList<>();
+        movie_year = new ArrayList<>();
+        movie_status = new ArrayList<>();
+
+        displayMovies();
+
+        customAdapter = new CustomAdapter(movies_page.this, this, movie_id, movie_name, movie_year, movie_status);
+        recyclerView.setAdapter(customAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(movies_page.this));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == 1) {
             recreate();
         }
     }
 
     void displayMovies() {
-        // Clear existing data
         movie_id.clear();
         movie_name.clear();
         movie_year.clear();
         movie_status.clear();
 
-        // Load new data from the database
-        Cursor cursor = myDB.getAllMovies();
+        UserSessionManager sessionManager = new UserSessionManager(this);
+        int userId = sessionManager.getUserId();
+
+        Cursor cursor = myDB.getAllMovies(userId);
         if (cursor.getCount() == 0) {
             Toast.makeText(this, "No movies to display.", Toast.LENGTH_SHORT).show();
         } else {
@@ -83,6 +88,7 @@ public class movies_page extends AppCompatActivity {
                 movie_status.add(cursor.getString(3));
             }
         }
-    }
 
+        cursor.close();
+    }
 }

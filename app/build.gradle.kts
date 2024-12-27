@@ -6,6 +6,14 @@ android {
     namespace = "com.example.thewatchlist"
     compileSdk = 34
 
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/DEPENDENCIES.txt")
+        exclude("META-INF/gfprobe-provider.xml")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/NOTICE")
+    }
+
     defaultConfig {
         applicationId = "com.example.thewatchlist"
         minSdk = 26
@@ -31,8 +39,8 @@ android {
     }
 }
 
-dependencies {
 
+dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -40,4 +48,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation("com.sendgrid:sendgrid-java:4.7.0")
+    implementation("com.sun.mail:android-mail:1.6.2")
+    implementation("com.sun.mail:android-activation:1.6.2")
 }

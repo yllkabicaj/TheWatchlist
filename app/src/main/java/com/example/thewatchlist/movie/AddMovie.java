@@ -1,6 +1,8 @@
 package com.example.thewatchlist.movie;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -11,6 +13,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.thewatchlist.auth.UserSessionManager;
 import com.example.thewatchlist.database.DatabaseHelper;
 import com.example.thewatchlist.R;
 import com.example.thewatchlist.enums.Status;
@@ -20,11 +23,24 @@ public class AddMovie extends AppCompatActivity {
     EditText edit_text_year, edit_text_name;
     Button add_movie_button;
     Spinner status_spinner;
+    UserSessionManager sessionManager;
+    int userId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_movie);
+
+        sessionManager = new UserSessionManager(this);
+        userId = sessionManager.getUserId();
+
+        if (userId == -1) {
+            Log.e("AddMovie", "User ID is invalid.");
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         edit_text_name = findViewById(R.id.edit_text_name);
         edit_text_year = findViewById(R.id.edit_text_year);
@@ -62,8 +78,13 @@ public class AddMovie extends AppCompatActivity {
                 }
 
                 DatabaseHelper dbHelper = new DatabaseHelper(AddMovie.this);
-                dbHelper.addMovie(movieTitle, movieYear, Status.valueOf(movieStatus));
+                dbHelper.addMovie(movieTitle, movieYear, Status.valueOf(movieStatus), userId);
                 Toast.makeText(AddMovie.this, "Movie added successfully", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(AddMovie.this, movies_page.class);
+                startActivity(intent);
+                finish();
+
             }
         });
     }
