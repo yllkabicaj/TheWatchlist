@@ -32,4 +32,18 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintVertical_bias="0.958"
     app:srcCompat="@drawable/baseline_add_24" />
+
+    <ImageView
+        android:id="@+id/no_movies_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/no_movies_img"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.101"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>

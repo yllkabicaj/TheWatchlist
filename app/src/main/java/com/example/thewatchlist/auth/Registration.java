@@ -54,17 +54,26 @@ public class Registration extends AppCompatActivity {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
+        String otp = generateOtp();
+        long timestamp = System.currentTimeMillis();
+
         cv.put("username", username);
         cv.put("password", hashPassword(password));
         cv.put("email", email);
+        cv.put("otp", otp); // Save the OTP
+        cv.put("otp_timestamp", timestamp); // Save the timestamp
 
         long result = db.insert("users", null, cv);
 
         if (result == -1) {
             Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(Registration.this, Login.class);
+            Toast.makeText(this, "Registration successful! OTP sent to email.", Toast.LENGTH_SHORT).show();
+
+            EmailUtil.sendEmail(email, "OTP Verification", "Your OTP is: " + otp);
+
+            Intent intent = new Intent(Registration.this, OtpVerification.class);
+            intent.putExtra("userId", (int) result);
             startActivity(intent);
             finish();
         }
@@ -84,5 +93,9 @@ public class Registration extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String generateOtp() {
+        return String.valueOf((int) (Math.random() * 9000) + 1000);
     }
 }

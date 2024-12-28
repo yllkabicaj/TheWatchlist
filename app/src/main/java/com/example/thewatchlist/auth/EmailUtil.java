@@ -62,4 +62,10 @@ public class EmailUtil {
             return null;
         }
     }
+
+    public static void sendOtpEmail(String toEmail, String otp) {
+        String subject = "Your Code";
+        String body = "Your code is: " + otp + "\n\nThis code is valid for a limited time. Do not share it with anyone.";
+        sendEmail(toEmail, subject, body);
+    }
 }

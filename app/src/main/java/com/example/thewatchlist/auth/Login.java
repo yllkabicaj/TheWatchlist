@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.thewatchlist.R;
 import com.example.thewatchlist.database.DatabaseHelper;
-import com.example.thewatchlist.movie.movies_page;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -80,10 +79,15 @@ public class Login extends AppCompatActivity {
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             @SuppressLint("Range") int userId = cursor.getInt(cursor.getColumnIndex("_id"));
-            UserSessionManager sessionManager = new UserSessionManager(this);
-            sessionManager.createLoginSession(userId);
-            Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(Login.this, movies_page.class);
+
+            String otp = generateOtp();
+            EmailUtil.sendOtpEmail(email, otp);  // Send OTP via email
+
+            long timestamp = System.currentTimeMillis();
+            dbHelper.storeOtp(userId, otp, timestamp);
+
+            Intent intent = new Intent(Login.this, OtpVerification.class);
+            intent.putExtra("userId", userId);  // Pass userId to OTP screen
             startActivity(intent);
             finish();
         } else {
@@ -106,4 +110,9 @@ public class Login extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
+
+    private String generateOtp() {
+        return String.format("%06d", (int) (Math.random() * 1000000));
+    }
+
 }

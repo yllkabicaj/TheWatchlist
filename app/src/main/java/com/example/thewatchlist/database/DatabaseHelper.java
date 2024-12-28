@@ -32,6 +32,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String USER_COLUMN_PASSWORD = "password";
     private static final String USER_COLUMN_EMAIL = "email";
     private static final String USER_COLUMN_RESET_CODE = "reset_code";
+    private static final String USER_COLUMN_OTP = "otp";
+    private static final String USER_COLUMN_OTP_TIMESTAMP = "otp_timestamp";
 
     public DatabaseHelper(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,7 +48,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 USER_COLUMN_USERNAME + " TEXT NOT NULL, " +
                 USER_COLUMN_PASSWORD + " TEXT NOT NULL, " +
                 USER_COLUMN_EMAIL + " TEXT NOT NULL, " +
-                USER_COLUMN_RESET_CODE + " TEXT" +
+                USER_COLUMN_RESET_CODE + " TEXT, " +
+                USER_COLUMN_OTP + " TEXT, " +
+                USER_COLUMN_OTP_TIMESTAMP + " INTEGER" +
                 ");";
         db.execSQL(createUserTableQuery);
 
@@ -117,6 +121,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Toast.makeText(context, "Movie deleted successfully.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void storeOtp(int userId, String otp, long timestamp) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(USER_COLUMN_OTP, otp);
+        cv.put(USER_COLUMN_OTP_TIMESTAMP, timestamp);
+
+        db.update(USER_TABLE_NAME, cv, USER_COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
     }
 
     public boolean updateResetCode(String email, String resetCode) {

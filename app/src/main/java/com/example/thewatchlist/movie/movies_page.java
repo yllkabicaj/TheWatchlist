@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,17 +15,17 @@ import com.example.thewatchlist.R;
 import com.example.thewatchlist.auth.UserSessionManager;
 import com.example.thewatchlist.database.DatabaseHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 
 public class movies_page extends AppCompatActivity {
     RecyclerView recyclerView;
     FloatingActionButton add_button;
-
     DatabaseHelper myDB;
     ArrayList<String> movie_id, movie_name, movie_year, movie_status;
-
     CustomAdapter customAdapter;
+    ImageView noMoviesImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +35,7 @@ public class movies_page extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view);
         add_button = findViewById(R.id.add_button);
+        noMoviesImage = findViewById(R.id.no_movies_image);
 
         add_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,8 +78,11 @@ public class movies_page extends AppCompatActivity {
 
         Cursor cursor = myDB.getAllMovies(userId);
         if (cursor.getCount() == 0) {
-            Toast.makeText(this, "No movies to display.", Toast.LENGTH_SHORT).show();
+            recyclerView.setVisibility(View.GONE);
+            noMoviesImage.setVisibility(View.VISIBLE);
         } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            noMoviesImage.setVisibility(View.GONE);
             while (cursor.moveToNext()) {
                 movie_id.add(cursor.getString(0));
                 movie_name.add(cursor.getString(1));
