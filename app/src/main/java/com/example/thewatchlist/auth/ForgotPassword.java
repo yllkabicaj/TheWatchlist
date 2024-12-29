@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,7 +22,6 @@ public class ForgotPassword extends AppCompatActivity {
     private EditText emailEditText, codeEditText, newPasswordEditText;
     private Button sendEmailButton, resetPasswordButton;
     private DatabaseHelper dbHelper;
-    private static final String TAG = "ForgotPassword";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,27 +36,19 @@ public class ForgotPassword extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        sendEmailButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Send Reset Email button clicked");
-                try {
-                    sendResetEmail();
-                } catch (Exception e) {
-                    Log.e(TAG, "Error in sendResetEmail", e);
-                    Toast.makeText(ForgotPassword.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
-                }
+        sendEmailButton.setOnClickListener(v -> {
+            try {
+                sendResetEmail();
+            } catch (Exception e) {
+                Toast.makeText(ForgotPassword.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
 
-        resetPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    resetPassword();
-                } catch (Exception e) {
-                    Toast.makeText(ForgotPassword.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
-                }
+        resetPasswordButton.setOnClickListener(v -> {
+            try {
+                resetPassword();
+            } catch (Exception e) {
+                Toast.makeText(ForgotPassword.this, "An error occurred. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -71,48 +61,34 @@ public class ForgotPassword extends AppCompatActivity {
             return;
         }
 
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        try {
-            String query = "SELECT * FROM users WHERE email=?";
-            cursor = db.rawQuery(query, new String[]{email});
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE email=?", new String[]{email});
 
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
+        if (cursor.getCount() > 0) {
+            String otp = generateOtp();
+            String subject = "Password Reset Request";
+            String body = "Use the following OTP to reset your password: " + otp;
 
-                String resetCode = generateResetCode();
-                ContentValues cv = new ContentValues();
+            cursor.moveToFirst();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("otp", otp);
+            db.update("users", contentValues, "email=?", new String[]{email});
 
-                db.update("users", cv, "email=?", new String[]{email});
+            EmailUtil.sendEmail(email, subject, body);
 
-                String subject = "Password Reset Request";
-                String body = "Use the following code to reset your password: " + resetCode;
-                EmailUtil.sendEmail(email, subject, body);
+            runOnUiThread(() -> {
+                codeEditText.setVisibility(View.VISIBLE);
+                newPasswordEditText.setVisibility(View.VISIBLE);
+                resetPasswordButton.setVisibility(View.VISIBLE);
+                sendEmailButton.setVisibility(View.GONE);
+            });
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        codeEditText.setVisibility(View.VISIBLE);
-                        newPasswordEditText.setVisibility(View.VISIBLE);
-                        resetPasswordButton.setVisibility(View.VISIBLE);
-                        sendEmailButton.setVisibility(View.GONE);
-                    }
-                });
-
-                Toast.makeText(this, "Reset email sent. Check your inbox.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Email address not found", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            if (db != null) {
-                db.close();
-            }
+            Toast.makeText(this, "Reset email sent. Check your inbox.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Email address not found", Toast.LENGTH_SHORT).show();
         }
+        cursor.close();
+        db.close();
     }
 
     private void resetPassword() throws Exception {
@@ -125,43 +101,30 @@ public class ForgotPassword extends AppCompatActivity {
             return;
         }
 
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        try {
-            db = dbHelper.getWritableDatabase();
-            String query = "SELECT * FROM users WHERE email=? AND reset_code=?";
-            cursor = db.rawQuery(query, new String[]{email, code});
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users WHERE email=? AND otp=?", new String[]{email, code});
 
-            if (cursor.getCount() > 0) {
-                Log.d(TAG, "Valid reset code");
-                ContentValues cv = new ContentValues();
-                cv.put("password", hashPassword(newPassword));
-                cv.put("reset_code", (String) null);
+        if (cursor.getCount() > 0) {
+           ContentValues contentValues = new ContentValues();
+            contentValues.put("password", hashPassword(newPassword));
+            contentValues.put("otp", (String) null);  // Clear the OTP field after reset
+            db.update("users", contentValues, "email=?", new String[]{email});
 
-                int rowsUpdated = db.update("users", cv, "email=?", new String[]{email});
-
-                Toast.makeText(this, "Password reset successfully", Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                Toast.makeText(this, "Invalid email or reset code", Toast.LENGTH_SHORT).show();
-            }
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            if (db != null) {
-                db.close();
-            }
+            Toast.makeText(this, "Password reset successfully", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            Toast.makeText(this, "Invalid email or OTP", Toast.LENGTH_SHORT).show();
         }
+
+        cursor.close();
+        db.close();
     }
 
-    private String generateResetCode() {
+    private String generateOtp() {
         return String.valueOf((int) (Math.random() * 900000) + 100000);
     }
 
-    private String hashPassword(String password) {
+   private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes());

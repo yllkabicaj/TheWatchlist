@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +22,8 @@ public class Registration extends AppCompatActivity {
 
     private EditText usernameEditText, passwordEditText, emailEditText;
     private DatabaseHelper dbHelper;
+    private TextView loginText;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,11 @@ public class Registration extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
         emailEditText = findViewById(R.id.email);
+        loginText = findViewById(R.id.login_text);
+        loginText.setOnClickListener(v -> {
+            Intent intent = new Intent(Registration.this, Login.class);
+            startActivity(intent);
+        });
         Button registerButton = findViewById(R.id.register_button);
 
         dbHelper = new DatabaseHelper(this);
@@ -52,6 +60,17 @@ public class Registration extends AppCompatActivity {
             return;
         }
 
+        if (!isValidEmail(email)) {
+            Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!isValidPassword(password)) {
+            Toast.makeText(this, "Password must be at least 8 characters long and include an uppercase letter, " +
+                    "a lowercase letter, a digit, and a special character", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         String otp = generateOtp();
@@ -60,8 +79,8 @@ public class Registration extends AppCompatActivity {
         cv.put("username", username);
         cv.put("password", hashPassword(password));
         cv.put("email", email);
-        cv.put("otp", otp); // Save the OTP
-        cv.put("otp_timestamp", timestamp); // Save the timestamp
+        cv.put("otp", otp);
+        cv.put("otp_timestamp", timestamp);
 
         long result = db.insert("users", null, cv);
 
@@ -97,5 +116,14 @@ public class Registration extends AppCompatActivity {
 
     private String generateOtp() {
         return String.valueOf((int) (Math.random() * 9000) + 1000);
+    }
+
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean isValidPassword(String password) {
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$";
+        return password.matches(passwordPattern);
     }
 }

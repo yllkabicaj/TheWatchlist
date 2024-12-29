@@ -7,33 +7,51 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Horizontal guideline at 30% from top -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/top_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.30"
+        android:orientation="horizontal" />
+
+    <!-- Horizontal guideline at 60% from top -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/mid_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent="0.60"
+        android:orientation="horizontal" />
+
+    <!-- Logo ImageView -->
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginHorizontal="16dp"
+        app:layout_constraintBottom_toTopOf="@id/mid_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.314"
+        android:contentDescription="logo"
         app:srcCompat="@drawable/watchlist___logo" />
 
+    <!-- Get Started Button -->
     <Button
         android:id="@+id/getStartedButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:backgroundTint="@color/material_dynamic_tertiary80"
         android:outlineSpotShadowColor="@color/black"
+        android:padding="16dp"
         android:text="Get Started"
         android:textColor="@color/white"
-        android:textSize="35sp"
-        android:padding="16dp"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.56"
+        app:layout_constraintTop_toTopOf="@id/mid_guideline"
         android:stateListAnimator="@anim/scale_fade_in"
         tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>
