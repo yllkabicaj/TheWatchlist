@@ -81,13 +81,13 @@ public class Login extends AppCompatActivity {
             @SuppressLint("Range") int userId = cursor.getInt(cursor.getColumnIndex("_id"));
 
             String otp = generateOtp();
-            EmailUtil.sendOtpEmail(email, otp);  // Send OTP via email
+            EmailUtil.sendOtpEmail(email, otp);
 
             long timestamp = System.currentTimeMillis();
             dbHelper.storeOtp(userId, otp, timestamp);
 
             Intent intent = new Intent(Login.this, OtpVerification.class);
-            intent.putExtra("userId", userId);  // Pass userId to OTP screen
+            intent.putExtra("userId", userId);
             startActivity(intent);
             finish();
         } else {
@@ -114,5 +114,4 @@ public class Login extends AppCompatActivity {
     private String generateOtp() {
         return String.format("%06d", (int) (Math.random() * 1000000));
     }
-
 }

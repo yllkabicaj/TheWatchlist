@@ -84,7 +84,6 @@ public class AddMovie extends AppCompatActivity {
                 Intent intent = new Intent(AddMovie.this, movies_page.class);
                 startActivity(intent);
                 finish();
-
             }
         });
     }

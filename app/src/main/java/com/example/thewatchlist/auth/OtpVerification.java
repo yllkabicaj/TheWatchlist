@@ -60,10 +60,8 @@ public class OtpVerification extends AppCompatActivity {
 
             long currentTime = System.currentTimeMillis();
             if (storedOtp.equals(enteredOtp) && (currentTime - timestamp) < 300000) {
-                // OTP verified, login successful, set session
                 Toast.makeText(this, "Code verified. Login successful!", Toast.LENGTH_SHORT).show();
 
-                // Set session after successful login
                 UserSessionManager sessionManager = new UserSessionManager(this);
                 sessionManager.setUserId(userId);
 
